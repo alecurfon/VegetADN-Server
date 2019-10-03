@@ -13,47 +13,42 @@ from flask import abort, request
 class Search(Resource):
     methods = ['GET']
 
-    def get(self, type):
+    def get(self):
         print(f'\n### GET(search) request:\n{request}')
 
-        if type == 'biodatabase':
-            return self.getBioDB(request.form['search'])
-        if type == 'bioentry':
-            return self.getBioentry(request.form['search'])
-        if type == 'taxon':
-            return self.getTaxon(request.form['search'])
+        print(request.args)
+        if ('type' not in request.args) or ('search' not in request.args):
+            abort(400, description=f'Params are missing.')
+        if request.args['type'] not in ('biodatabase', 'bioentry', 'taxon'):
+            abort(409, description=f'Search of type {type} is not available.')
 
-        # from ..models import Session, Base
-        # session = Session()
-        # from ..models.biodatabase import Biodatabase
-        # if id==-1:
-        #     query = session.query(Biodatabase)
-        #     query = query.order_by(Biodatabase.name)
-        #     # query = query.order_by(Biodatabase.authority)
-        #     result = []
-        #     for b in query.all():
-        #         result.append(b.serialize())
-        #     print(f'Sending:\n{result}')
-        # else:
-        #     try:
-        #         result = session.query(Biodatabase).filter(Biodatabase.biodatabase_id == id).first()
-        #     except Exception as e:
-        #         session.close()
-        #         abort(404, description='Biodatabase not found.')
-        # session.close()
-        # return result, 200
+        if request.args['type'] == 'biodatabase':
+            return self.getBioDB(request.args['search'])
+        if request.args['type'] == 'bioentry':
+            return self.getBioentry(request.args['search'])
+        if request.args['type'] == 'taxon':
+            return self.getTaxon(request.args['search'])
 
 
     def getBioDB(self, concept):
-        print(f'Looking for biodb a like {concept}')
-        return f'Looking for biodb a like {concept}'
+        from ..models import Session, Base
+        session = Session()
+        from ..models.biodatabase import Biodatabase
+        query = session.query(Biodatabase)
+        query = query.filter(Biodatabase.name.ilike(f'%{concept}%'))
+        result = []
+        for b in query.all():
+            result.append(b.serialize())
+        print(f'Sending:\n{result}')
+        session.close()
+        return result, 200
 
 
     def getBioentry(self, concept):
-        print(f'Looking for bioentry a like {concept}')
-        return f'Looking for bioentry a like {concept}'
+        print(f'Looking for a bioentry like {concept}')
+        return [f'Looking for a bioentry like {concept}']
 
 
     def getTaxon(self, concept):
-        print(f'Looking for taxon a like {concept}')
-        return f'Looking for taxon a like {concept}'
+        print(f'Looking for a taxon like {concept}')
+        return [f'Looking for a taxon like {concept}']

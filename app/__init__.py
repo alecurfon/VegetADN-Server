@@ -10,7 +10,7 @@ from .api import *
 
 routes.add_resource(BiodbAPI, '/biodatabase', '/biodatabase/<id>')
 routes.add_resource(FilesIO, '/upload/<biodb>', '/download')
-routes.add_resource(Search, '/search/<type>')
+routes.add_resource(Search, '/search')  # ?type=''&search=''
 
 # @app.route('/path', methods=['POST'])
 
