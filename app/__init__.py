@@ -1,26 +1,22 @@
+
+# APP
 from flask import Flask
-from flask_restful import Api
-from flask_cors import CORS
-
 app = Flask(__name__)
+
+# CORS
+from flask_cors import CORS
 CORS(app)
+
+# SQLAlchemy
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://administrador:@localhost:5432/biosql'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+from flask_sqlalchemy import SQLAlchemy
+db = SQLAlchemy(app)
+
+# Resources routes
+from flask_restful import Api
 routes = Api(app)
-
 from .api import *
-
 routes.add_resource(BiodbAPI, '/biodatabase', '/biodatabase/<id>')
 routes.add_resource(FilesIO, '/upload/<biodb>', '/download')
 routes.add_resource(Search, '/search')  # ?type=''&search=''
-
-# @app.route('/path', methods=['POST'])
-
-# @user.route('/<user_id>', defaults={'username': None})
-# @user.route('/<user_id>/<username>')
-# def show(user_id, username):
-#     pass
-
-# GET /customers/: get all customers
-# GET /customers/[id]: get a customer by id
-# POST /customers/: save a customer
-# PUT /customers/update/[id]: update a customer by id
-# DELETE /customers/[id]: delete a customer by id

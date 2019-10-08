@@ -7,11 +7,9 @@ class BiodbAPI(Resource):
     def get(self, id=-1):
         print(f'\n### GET(biodatabase) request:\n{request}')
 
-        from ..models import Session, Base
-        session = Session()
-        from ..models.biodatabase import Biodatabase
+        from ..models import db, Biodatabase
         if id==-1:
-            query = session.query(Biodatabase)
+            query = db.session.query(Biodatabase)
             query = query.order_by(Biodatabase.name)
             # query = query.order_by(Biodatabase.authority)
             result = []
@@ -20,11 +18,11 @@ class BiodbAPI(Resource):
             print(f'Sending:\n{result}')
         else:
             try:
-                result = session.query(Biodatabase).filter(Biodatabase.biodatabase_id == id).first()
+                result = db.session.query(Biodatabase).filter(Biodatabase.biodatabase_id == id).first()
             except Exception as e:
-                session.close()
+                db.session.close()
                 abort(404, description='Biodatabase not found.')
-        session.close()
+        db.session.close()
         return result, 200
 
 
@@ -51,20 +49,18 @@ class BiodbAPI(Resource):
         print(f'\n### PUT(biodatabase) request:\n{request}')
 
         name, authority, description = self.__data_check(request.json)
-        from ..models import Session, Base
-        session = Session()
-        from ..models.biodatabase import Biodatabase
+        from ..models import db, Biodatabase
         try:
-            row = session.query(Biodatabase).filter(Biodatabase.biodatabase_id == id).first()
+            row = db.session.query(Biodatabase).filter(Biodatabase.biodatabase_id == id).first()
         except Exception as e:
-            session.rollback()
-            session.close()
+            db.session.rollback()
+            db.session.close()
             abort(404, description='Biodatabase not found.')
         row.name = name
         row.authority = authority
         row.description = description
-        session.commit()
-        session.close()
+        db.session.commit()
+        db.session.close()
         return {'message':f'Biodatabase "{name}" updated.'}, 201
 
     def delete(self, id):
