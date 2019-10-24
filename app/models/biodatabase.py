@@ -1,20 +1,18 @@
-# coding=utf-8
-
-from . import db
+from app import db
 
 class Biodatabase(db.Model):
     __tablename__ = 'biodatabase'
+    __table_args__ = {'autoload':True}
 
-    biodatabase_id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(128))
-    authority = db.Column(db.String(128))
-    description = db.Column(db.String)
-
-
-    # def __init__(self, name, authority, description):
-    #     self.name = name
-    #     self.authority = authority
-    #     self.description = description
+    def match(self, str):
+        tsvector = db.func.to_tsvector('simple', self.__str__(self))
+        # from sqlalchemy import Index
+        # index = Index('idx_biodb_fts', tsvector, postgresql_using='gin')
+        str = str.strip()
+        str = " ".join(str.split()).replace(' ', ' & ')
+        print(f'QUERY: {str}')
+        res = tsvector.match(str)
+        return res
 
     def serialize(self):
         return {
@@ -23,3 +21,6 @@ class Biodatabase(db.Model):
             'authority': self.authority,
             'description': self.description
         }
+
+    def __str__(self):
+        return f'{self.name} {self.authority} {self.description}'

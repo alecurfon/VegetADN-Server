@@ -6,66 +6,44 @@ class Search(Resource):
 
     def get(self):
         print(f'\n### GET(search) request:\n{request}')
+        self.check_args(request.args)
 
-        print(request.args)
-        if ('type' not in request.args) or ('search' not in request.args) \
-            or ('page' not in request.args) or ('page_size' not in request.args):
+        query = self.get_query(request.args)
+
+        result = []
+        for b in query.items:
+            result.append(b.serialize())
+        response = {'result': result, 'pages' : query.pages, 'total' : query.total}
+
+        return response, 200
+
+    def check_args(self, args):
+        print(args)
+        if ('type' not in args) or ('search' not in args) \
+            or ('page' not in args) or ('page_size' not in args):
             abort(400, description=f'Params are missing.')
-        if request.args['type'] not in ('biodatabase', 'bioentry', 'taxon'):
+        if args['type'] not in ('biodatabase', 'bioentry', 'taxon'):
             abort(409, description=f'Search of type {type} is not available.')
-        if not (request.args['page'].isdigit() and request.args['page_size'].isdigit()):
+        if not (args['page'].isdigit() and args['page_size'].isdigit()):
             abort(409, description='The page information is incorrect.')
 
-        print(f'>> SEARCH: {request.args["search"]}')
-        if request.args['type'] == 'biodatabase':
-            return self.getBioDB(request.args['search'],
-                request.args['page'], request.args['page_size'])
-        if request.args['type'] == 'bioentry':
-            return self.getBioentry(request.args['search'],
-                request.args['page'], request.args['page_size'])
-        if request.args['type'] == 'taxon':
-            return self.getTaxon(request.args['search'],
-                request.args['page'], request.args['page_size'])
+    def get_query(self, args):
+        print(f'>> SEARCH: {args["search"]}')
 
+        if args['type'] == 'biodatabase':
+            from ..models import Biodatabase
+            query = Biodatabase.query \
+                .filter(Biodatabase.match(Biodatabase, args['search'])) \
 
-    def getBioDB(self, search, page, page_size):
-        from ..models import db, Biodatabase
-        query = db.session.query(Biodatabase) \
-            .filter((Biodatabase.name.ilike(f'%{search}%'))
-                | (Biodatabase.authority.ilike(f'%{search}%'))
-                | (Biodatabase.description.ilike(f'%{search}%'))) \
-            .paginate(int(page), int(page_size), False)
-        result = []
-        for b in query.items:
-            result.append(b.serialize())
-        db.session.close()
-        return {'result': result, 'pages' : query.pages, 'total' : query.total}, 200
+        if args['type'] == 'bioentry':
+            from ..models import Bioentry
+            query = Bioentry.query \
+                .filter(Bioentry.match(Bioentry, args['search'])) \
 
+        if args['type'] == 'taxon':
+            from ..models import TaxonName
+            query = TaxonName.query \
+                .filter(TaxonName.match(TaxonName, args['search']))
 
-    def getBioentry(self, search, page, page_size):
-        from ..models import db, Bioentry
-        query = db.session.query(Bioentry) \
-            .filter((Bioentry.name.ilike(f'%{search}%'))
-                # | (Bioentry.accession.ilike(f'%{search}%'))
-                # | (Bioentry.identifier.ilike(f'%{search}%'))
-                | (Bioentry.division.ilike(f'%{search}%'))
-                | (Bioentry.description.ilike(f'%{search}%'))) \
-            .paginate(int(page), int(page_size), False)
-        result = []
-        for b in query.items:
-            result.append(b.serialize())
-        db.session.close()
-        return {'result': result, 'pages' : query.pages, 'total' : query.total}, 200
-
-
-    def getTaxon(self, search, page, page_size):
-        from ..models import db, TaxonName
-        query = db.session.query(TaxonName) \
-            .filter((TaxonName.name.ilike(f'%{search}%'))
-                | (TaxonName.name_class.ilike(f'%{search}%'))) \
-            .paginate(int(page), int(page_size), False)
-        result = []
-        for b in query.items:
-            result.append(b.serialize())
-        db.session.close()
-        return {'result': result, 'pages' : query.pages, 'total' : query.total}, 200
+        print(query)
+        return query.paginate(int(args['page']), int(args['page_size']), False)

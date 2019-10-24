@@ -7,9 +7,9 @@ class BiodbAPI(Resource):
     def get(self, id=-1):
         print(f'\n### GET(biodatabase) request:\n{request}')
 
-        from ..models import db, Biodatabase
+        from ..models import Biodatabase
         if id==-1:
-            query = db.session.query(Biodatabase)
+            query = Biodatabase.query
             query = query.order_by(Biodatabase.name)
             # query = query.order_by(Biodatabase.authority)
             result = []
@@ -18,11 +18,9 @@ class BiodbAPI(Resource):
             print(f'Sending:\n{result}')
         else:
             try:
-                result = db.session.query(Biodatabase).filter(Biodatabase.biodatabase_id == id).first()
+                result = Biodatabase.query.filter(Biodatabase.biodatabase_id == id).first()
             except Exception as e:
-                db.session.close()
                 abort(404, description='Biodatabase not found.')
-        db.session.close()
         return result, 200
 
 
@@ -49,18 +47,16 @@ class BiodbAPI(Resource):
         print(f'\n### PUT(biodatabase) request:\n{request}')
 
         name, authority, description = self.__data_check(request.json)
-        from ..models import db, Biodatabase
+        from ..models import Biodatabase
         try:
-            row = db.session.query(Biodatabase).filter(Biodatabase.biodatabase_id == id).first()
+            row = Biodatabase.query.filter(Biodatabase.biodatabase_id == id).first()
         except Exception as e:
-            db.session.rollback()
-            db.session.close()
             abort(404, description='Biodatabase not found.')
         row.name = name
         row.authority = authority
         row.description = description
-        db.session.commit()
-        db.session.close()
+        # db.session.commit()
+        # db.session.close()
         return {'message':f'Biodatabase "{name}" updated.'}, 201
 
     def delete(self, id):

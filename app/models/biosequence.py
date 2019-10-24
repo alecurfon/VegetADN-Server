@@ -1,23 +1,8 @@
-# coding=utf-8
-
-from . import db
+from app import db
 
 class Biosequence(db.Model):
     __tablename__ = 'biosequence'
-
-    bioentry_id = db.Column(db.Integer, primary_key=True)
-    version = db.Column(db.Integer)
-    length = db.Column(db.Integer)
-    alphabet = db.Column(db.String(10))
-    seq = db.Column(db.String)
-
-
-    # def __init__(self, bioentry_id, version, length, alphabet, seq):
-    #     self.bioentry_id = bioentry_id
-    #     self.version = version
-    #     self.length = length
-    #     self.alphabet = alphabet
-    #     self.seq = seq
+    __table_args__ = {'autoload':True}
 
     def serialize(self):
         return {
@@ -27,3 +12,6 @@ class Biosequence(db.Model):
             'alphabet':self.alphabet,
             'seq':self.seq
         }
+
+    def __str__(self):
+        return f'{self.version} {self.length} {self.alphabet} {self.seq}'

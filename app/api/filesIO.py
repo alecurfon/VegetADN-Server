@@ -27,7 +27,7 @@ class FilesIO(Resource):
             file_cpy = os.path.join(TMP_FOLDER, secure_filename(file.filename))
             file.save(file_cpy)
 
-            from ..tools import upload
+            from ..utils import upload
             nseq, ntotal, format, desc = upload.run(conn, file_cpy, biodb)
             msg.append({ 'file' : file.filename, 'format' : format, 'upload_seqs' : nseq, 'total_seqs': ntotal , 'message': desc})
 

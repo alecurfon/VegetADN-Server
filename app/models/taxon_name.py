@@ -1,17 +1,10 @@
-# coding=utf-8
-
-from . import db
+from app import db
 
 class TaxonName(db.Model):
     __tablename__ = 'taxon_name'
-
-    taxon_id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(255))
-    name_class = db.Column(db.String(32))
-
-    # def __init__(self, name, name_class):
-    #     self.name = name
-    #     self.name_class = name_class
+    __table_args__ = (
+            db.PrimaryKeyConstraint('taxon_id', 'name', 'name_class'),
+            {'extend_existing':True, 'autoload':True})
 
     def serialize(self):
         return {
@@ -19,3 +12,6 @@ class TaxonName(db.Model):
             'name':self.name,
             'name_class':self.name_class
         }
+
+    def __str__(self):
+        return f'{self.name} {self.name_class}'
