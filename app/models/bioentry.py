@@ -4,6 +4,14 @@ class Bioentry(db.Model):
     __tablename__ = 'bioentry'
     __table_args__ = {'autoload':True}
 
+    def match(self, query):
+        from app import db
+        tsvector = db.func.to_tsvector(str(self))
+        query = query.strip().split()
+        query = ' & '.join(query)
+        print(f'TSVECTOR: {tsvector}\nDOCUMENT: {str(self)}\nQUERY: {query}')
+        return tsvector.match(query)
+
     def serialize(self):
         return {
             'bioentry_id':self.bioentry_id,
@@ -18,5 +26,9 @@ class Bioentry(db.Model):
         }
 
     def __str__(self):
-        return f'{self.name} {self.accession} {self.identifier}' \
-            f'{self.division} {self.description} {self.version}'
+        return ' '.join([self.name,
+            self.accession,
+            db.func.coalesce(self.identifier, ''),
+            db.func.coalesce(self.division, ''),
+            db.func.coalesce(self.description , ''),
+            self.version])

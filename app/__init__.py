@@ -10,12 +10,7 @@ db = SQLAlchemy(app)
 db.reflect()
 from sqlalchemy import MetaData
 db.make_declarative_base(db.Model, MetaData(bind=db.get_engine()))
-
-# metadata = {'autoload_with':engine, 'extend_existing':True, 'autoload':True}
-# db.get_binds()
-# db.get_tables_for_bind()
-# engine = db.create_engine()
-# session = db.create_session()
+# from sqlalchemy.orm import sessionmaker
 # Session = sessionmaker(binds=db.get_binds(app))
 
 from flask_restful import Api

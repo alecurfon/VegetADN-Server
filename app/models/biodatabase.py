@@ -3,16 +3,16 @@ from app import db
 class Biodatabase(db.Model):
     __tablename__ = 'biodatabase'
     __table_args__ = {'autoload':True}
+    # from sqlalchemy import Index
+    # index = Index('idx_biodb_fts', tsvector, postgresql_using='gin')
 
-    def match(self, str):
-        tsvector = db.func.to_tsvector('simple', self.__str__(self))
-        # from sqlalchemy import Index
-        # index = Index('idx_biodb_fts', tsvector, postgresql_using='gin')
-        str = str.strip()
-        str = " ".join(str.split()).replace(' ', ' & ')
-        print(f'QUERY: {str}')
-        res = tsvector.match(str)
-        return res
+    def match(self, query):
+        from app import db
+        tsvector = db.func.to_tsvector(str(self))
+        query = query.strip().split()
+        query = ' & '.join(query)
+        print(f'TSVECTOR: {tsvector}\nDOCUMENT: {str(self)}\nQUERY: {query}')
+        return tsvector.match(query)
 
     def serialize(self):
         return {
@@ -23,4 +23,6 @@ class Biodatabase(db.Model):
         }
 
     def __str__(self):
-        return f'{self.name} {self.authority} {self.description}'
+        return self.name + ' ' + \
+            db.func.coalesce(self.authority, "") + ' ' + \
+            db.func.coalesce(self.description, "")

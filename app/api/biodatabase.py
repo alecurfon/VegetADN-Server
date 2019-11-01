@@ -4,31 +4,32 @@ from flask import abort, request
 class BiodbAPI(Resource):
     methods = ['GET', 'POST', 'PUT', 'DELETE']
 
+
     def get(self, id=-1):
         print(f'\n### GET(biodatabase) request:\n{request}')
 
-        from ..models import Biodatabase
+        from app.models import Biodatabase
+        query = Biodatabase.query
         if id==-1:
-            query = Biodatabase.query
             query = query.order_by(Biodatabase.name)
             # query = query.order_by(Biodatabase.authority)
             result = []
             for b in query.all():
                 result.append(b.serialize())
-            print(f'Sending:\n{result}')
         else:
             try:
-                result = Biodatabase.query.filter(Biodatabase.biodatabase_id == id).first()
+                result = query.filter(Biodatabase.biodatabase_id == id).first()
             except Exception as e:
                 abort(404, description='Biodatabase not found.')
         return result, 200
 
 
+    # with Biopython
     def post(self):
         print(f'\n### POST(biodatabase) request:\n{request}')
 
         name, authority, description = self.__data_check(request.json)
-        from ..tools.db_link import connect
+        from app.utils.biopy_db import connect
         conn = connect()
         try:
             db = conn[name]
@@ -47,18 +48,19 @@ class BiodbAPI(Resource):
         print(f'\n### PUT(biodatabase) request:\n{request}')
 
         name, authority, description = self.__data_check(request.json)
-        from ..models import Biodatabase
+        from app import db
+        from app.models import Biodatabase
         try:
-            row = Biodatabase.query.filter(Biodatabase.biodatabase_id == id).first()
+            row = Biodatabase.query.filter(Biodatabase.biodatabase_id == id)
         except Exception as e:
             abort(404, description='Biodatabase not found.')
-        row.name = name
-        row.authority = authority
-        row.description = description
-        # db.session.commit()
-        # db.session.close()
+        row.update({'name':name, 'authority':authority, 'description':description})
+        db.session.commit()
+        db.session.close()
         return {'message':f'Biodatabase "{name}" updated.'}, 201
 
+
+    # with Biopython
     def delete(self, id):
         print(f'\n### DELETE(biodatabase) request:\n{request}')
 
@@ -66,12 +68,13 @@ class BiodbAPI(Resource):
         if code == 404:
             abort(404, description='Biodatabase not found.')
 
-        from ..tools.db_link import connect
+        from app.utils.biopy_db import connect
         conn = connect()
+        n_seqs = len(conn[data.name])
         conn.remove_database(data.name)
         conn.commit()
         conn.close()
-        return {'message':f'Biodatabase "{data.name}" removed.'}, 201
+        return {'message':f'Biodatabase "{data.name}" removed with its {n_seqs} sequences.'}, 201
 
 
     def __data_check(self, data):

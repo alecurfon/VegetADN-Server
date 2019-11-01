@@ -14,4 +14,7 @@ class Biosequence(db.Model):
         }
 
     def __str__(self):
-        return f'{self.version} {self.length} {self.alphabet} {self.seq}'
+        return ' ' .join([db.func.coalesce(self.version, ''),
+            db.func.coalesce(self.length, ''),
+            db.func.coalesce(self.alphabet, ''),
+            db.func.coalesce(self.seq, '')])

@@ -17,4 +17,8 @@ class Taxon(db.Model):
         }
 
     def __str__(self):
-        return f'{self.node_rank} {self.genetic_code} {self.mito_genetic_code} {self.left_value} {self.right_value}'
+        return ' '.join([db.func.coalesce(self.node_rank, ''),
+            db.func.coalesce(self.genetic_code, ''),
+            db.func.coalesce(self.mito_genetic_code, ''),
+            db.func.coalesce(self.left_value, ''),
+            db.func.coalesce(self.right_value, '')])

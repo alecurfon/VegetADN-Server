@@ -14,7 +14,7 @@ class FilesIO(Resource):
         if len(request.files) < 1:
             abort(400, description='File list is missing.')
 
-        from ..tools.db_link import connect
+        from app.utils.biopy_db import connect
         conn = connect()
 
         msg = []
