@@ -1,6 +1,9 @@
 import os
 _basedir = os.path.abspath(os.path.dirname(__file__))
 
+from Bio import Entrez
+Entrez.email = 'vegetADN@vegetadn.es'
+
 DEBUG = False
 TESTING = False
 SQLALCHEMY_DATABASE_URI = 'postgresql://administrador:@localhost:5432/biosql'

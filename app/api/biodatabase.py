@@ -7,30 +7,38 @@ class Biodatabase(Resource):
     def get(self, id=-1, name=None):
         print(f'\n### GET(biodatabase) request:\n{request}')
 
+        count = ('count' in request.args) and (request.args['count']=='yes')
+
         from app.models import Biodatabase
         query = Biodatabase.query
-        try:
-            if id > -1:
-                query = query.filter(Biodatabase.biodatabase_id == id)
-            elif name!=None:
-                query = query.filter(Biodatabase.name == name)
-            else:
-                query = query.order_by(Biodatabase.name)
-        except Exception as e:
-            abort(404, description='Biodatabase not found.')
 
-        result = []
-        n_seqs = -1
-        count = ('count' in request.args) and (request.args['count']=='yes')
-        if count:
-            from app.models import Bioentry
-        for row in query.all():
+        if id > -1 or name!=None:
+            try:
+                query = query.filter((Biodatabase.biodatabase_id == id) | (Biodatabase.name == name)).first()
+                result = query.serialize()
+            except Exception as e:
+                abort(404, description='Biodatabase not found.')
             if count:
-                n_seqs = Bioentry.query.filter(Bioentry.biodatabase_id==row.biodatabase_id).count()
-            b=row.serialize()
-            b['count']=n_seqs
-            result.append(b)
+                n_seqs = self.getCount(query)
+                result['count']=n_seqs
+        else:
+            query = query.order_by(Biodatabase.name)
+            if ('bioentry' in request.args):
+                from app.models import Bioentry
+                query = query.join(Bioentry) \
+                    .filter(Bioentry.accession == request.args['bioentry'])
+            result = []
+            for row in query.all():
+                b = row.serialize()
+                if count:
+                    b['count'] = self.getCount(row)
+                result.append(b)
         return result, 200
+
+
+    def getCount(self, biodb):
+        from app.models import Bioentry
+        return Bioentry.query.filter(Bioentry.biodatabase_id==biodb.biodatabase_id).count()
 
 
     # with Biopython
@@ -52,7 +60,7 @@ class Biodatabase(Resource):
         return msg, 201
 
 
-    def put(self, id=None, id_name=None):
+    def put(self, id=None, name=None):
         print(f'\n### PUT(biodatabase) request:\n{request}')
 
         self.__data_check(request.json)
@@ -61,8 +69,8 @@ class Biodatabase(Resource):
         try:
             if id!=None:
                 row = Biodatabase.query.filter(Biodatabase.biodatabase_id == id)
-            elif id_name!=None:
-                row = Biodatabase.query.filter(Biodatabase.name == id_name)
+            elif name!=None:
+                row = Biodatabase.query.filter(Biodatabase.name == name)
             else:
                 abort(404, description='Biodatabase identifier is missing.')
         except Exception as e:
@@ -74,13 +82,13 @@ class Biodatabase(Resource):
 
 
     # with Biopython
-    def delete(self, id=-1, id_name=None):
+    def delete(self, id=-1, name=None):
         print(f'\n### DELETE(biodatabase) request:\n{request}')
 
-        data, code = self.get(id, id_name)
+        data, code = self.get(id, name)
         if code == 404:
             abort(404, description='Biodatabase not found.')
-        biodatabase = data[0]['name']
+        biodatabase = data['name']
         from app.utils.biopy_db import connect
         conn = connect()
         n_seqs = len(conn[biodatabase])

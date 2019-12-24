@@ -31,30 +31,30 @@ def upload_file(conn, filepath, db):
 
     from Bio import SeqIO
     for format in formats:
-        ffound = False
         try:
             seqs = list(SeqIO.parse(filepath, format))
         except Exception as e:
             print(f'FORMAT failed: {format}')
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print(exc_type, fname, exc_tb.tb_lineno)
             continue
 
-        n = total = 0
-        for seq in seqs:
-            ffound = True
-            try:
-                total+=1
-                n += db.load([seq],True)
-                conn.commit()
-            except IntegrityError as e:
-                conn.rollback()
-                continue
-
-        if not ffound:
-            print(f'FORMAT failed: {format}')
+        n = 0
+        total = len(seqs)
+        if total == 0:
             continue
+        try:
+            n = db.load(seqs,True)
+            conn.commit()
+        except Exception as e:
+            conn.rollback()
+
+        if n < total:
+            for seq in seqs:
+                try:
+                    n += db.load([seq],True)
+                    conn.commit()
+                except IntegrityError as e:
+                    conn.rollback()
+                    continue
 
         conn.commit()
         return n, total, format

@@ -13,20 +13,14 @@ class Search(Resource):
 
     def put(self):
         print(f'\n### PUT(search) request:\n{request}')
-        print(request.args)
-        print(request.form)
-        print(request.values)
-        print(request.files)
-        print(request.json)
-        return 200
-        if ('type' in request.json):
-            if request.json['type'] == 'biodatabase':
+        if ('type' in request.args):
+            if request.args['type'] == 'biodatabase':
                 query = 'REFRESH MATERIALIZED VIEW biodatabase_search;'
-            elif request.json['type'] == 'bioentry':
+            elif request.args['type'] == 'bioentry':
                 query = 'REFRESH MATERIALIZED VIEW bioentry_search;'
-            elif request.json['type'] == 'taxon':
+            elif request.args['type'] == 'taxon':
                 query = 'REFRESH MATERIALIZED VIEW taxon_search;'
-            msg = f'The full-text search for {request.json["type"]} is ready.'
+            msg = f'The full-text search for {request.args["type"]} is ready.'
         else:
             query = '''REFRESH MATERIALIZED VIEW biodatabase_search;
                 REFRESH MATERIALIZED VIEW bioentry_search;
@@ -40,7 +34,6 @@ class Search(Resource):
 
 
     def __check_args(self):
-        print(request.args)
         if ('type' not in request.args) or ('search' not in request.args) \
             or ('page' not in request.args) or ('page_size' not in request.args):
             abort(400, description=f'Params are missing.')
@@ -62,8 +55,29 @@ class Search(Resource):
         query = query.paginate(int(self.page), int(self.page_size), False)
         result = []
         for b in query.items:
-            result.append(b.serialize())
+            if self.type=='bioentry':
+                bioentry = self.attach(b)
+            else:
+                bioentry = b.serialize()
+            result.append(bioentry)
         return {'result': result, 'pages' : query.pages, 'total' : query.total}
+
+
+    def attach(self, bioentry):
+        result=bioentry.serialize()
+        from app.models import Biodatabase
+        result['biodatabase'] = Biodatabase.query \
+            .filter(Biodatabase.biodatabase_id==bioentry.biodatabase_id) \
+            .first().serialize()
+        from app.models import TaxonName
+        try:
+            result['taxon'] = TaxonName.query \
+                .filter(TaxonName.taxon_id==bioentry.taxon_id) \
+                .filter(TaxonName.name_class=='scientific name') \
+                .first().serialize()
+        except Exception as e:
+            result['taxon'] = None
+        return result
 
 
     def __get_query(self):
@@ -90,7 +104,6 @@ class Search(Resource):
 
 
     def __search_biodatabase(self):
-        from app import db
         from app.models import Biodatabase, BiodatabaseSearch
         return Biodatabase.query \
             .join(BiodatabaseSearch, Biodatabase.biodatabase_id == BiodatabaseSearch.biodatabase_id) \
@@ -106,7 +119,6 @@ class Search(Resource):
 
 
     def __search_taxon(self):
-        from app import db
         from app.models import TaxonName, TaxonSearch
         return TaxonName.query \
             .filter(TaxonName.name_class == 'scientific name') \

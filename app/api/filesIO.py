@@ -10,31 +10,37 @@ class FilesIO(Resource):
 
     def get(self):
         print(f'\n### GET(filesIO) request:\n{request}')
-        # filename, format, type[ biodatabase, bioentry, taxon ], id
-        self.__check_args()
-        filename = os.path.join(TMP_FOLDER, secure_filename(request.args['filename']))
+        self.__check_get_args()
+        self.filename = os.path.join(TMP_FOLDER, secure_filename(self.filename))
 
         from app.utils.biopy_db import connect
         conn = connect()
         from ..utils import download
-        nseq, ntotal, format, desc = download.run(conn, filename,
-            request.args['format'], request.args['type'], request.args['id'])
+        desc = download.run(conn, self.filename, self.format,
+            self.biodatabase, self.bioentry)
         conn.close()
+        print(desc)
+        return send_file(self.filename, mimetype='text/plain')
 
-        return send_file(filename, mimetype='text/plain')
-
-    def __check_args(self):
+    def __check_get_args(self):
         print(request.args)
-        if ('type' not in request.args) or ('id' not in request.args):
-            abort(400, description=f'Params are missing.')
-        if request.args['type'] not in ('biodatabase', 'bioentry', 'taxon'):
-            abort(409, description=f'Download of type "{type}" is not available.')
+        if ('biodatabase' not in request.args):
+            abort(400, description=f'The biodatabase is not specified.')
+        self.biodatabase = request.args['biodatabase']
+        if ('bioentry' not in request.args):
+            self.bioentry = ''
+        else:
+            self.bioentry = request.args['bioentry']
         if ('format' not in request.args):
-            request.args['format']='fasta'
-        if request.args['format'] not in ('seqxml', 'embl', 'fasta', 'gb', 'gck', 'genbank'):
-            abort(409, description=f'The download format "{type}" is not available.')
+            self.format = 'fasta'
+        else:
+            self.format = request.args['format']
+        if self.format not in ('embl', 'fasta', 'gb', 'genbank'):
+            abort(400, description=f'The format {self.format} is not available.')
         if ('filename' not in request.args) or (request.args['filename'] == ''):
-            request.args['filename']=f"{request.args['type']}_{request.args['id']}.{request.args['format']}"
+            self.filename = f"{request.args['biodatabase']}_download.{request.args['format']}"
+        else:
+            self.filename = request.args['filename']
 
 
     def post(self, biodb):

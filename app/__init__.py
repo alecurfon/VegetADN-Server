@@ -16,7 +16,7 @@ db.make_declarative_base(db.Model, MetaData(bind=db.get_engine()))
 from flask_restful import Api
 routes = Api(app)
 from .api import *
-routes.add_resource(Biodatabase, '/biodatabase', '/biodatabase/<int:id>', '/biodatabase/<string:id_name>')
+routes.add_resource(Biodatabase, '/biodatabase', '/biodatabase/<int:id>', '/biodatabase/<string:name>')
 routes.add_resource(Bioentry, '/bioentry', '/bioentry/<int:id>', '/bioentry/<string:accession>')
 routes.add_resource(Taxon, '/taxon', '/taxon/<int:id>', '/taxon/<string:name>')
 routes.add_resource(FilesIO, '/upload/<biodb>', '/download')

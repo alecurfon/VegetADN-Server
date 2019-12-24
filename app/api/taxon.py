@@ -9,20 +9,24 @@ class Taxon(Resource):
         print(f'\n### GET(taxon) request:\n{request}')
 
         from app.models import TaxonName
+        result = []
         query = TaxonName.query
         if id > -1:
             try:
-                result = query.filter(TaxonName.taxon_id == id).first().serialize()
+                query = query.filter(TaxonName.taxon_id == id) \
+                    .order_by(TaxonName.name_class)
             except Exception as e:
                 abort(404, description='TaxonName not found.')
         elif name!=None:
             try:
-                result = query.filter(TaxonName.name == name).first().serialize()
+                result = [query.filter(TaxonName.name == name).first().serialize()]
+                query = query.filter(TaxonName.taxon_id == result[0]['taxon_id']) \
+                    .filter(TaxonName.name != result[0]['name']) \
+                    .order_by(TaxonName.name_class)
             except Exception as e:
                 abort(404, description='TaxonName not found.')
         else:
             query = query.order_by(TaxonName.name)
-            result = []
-            for b in query.all():
-                result.append(b.serialize())
+        for b in query.all():
+            result.append(b.serialize())
         return result, 200
