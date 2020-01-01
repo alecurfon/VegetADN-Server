@@ -1,9 +1,11 @@
 from flask_restful import Resource
 from flask import abort, request
+from app.auth import *
 
 class Search(Resource):
     methods = ['GET', 'PUT']
 
+    @token_required
     def get(self):
         print(f'\n### GET(search) request:\n{request}')
         self.__check_args()
@@ -11,6 +13,7 @@ class Search(Resource):
         return self.__get_paged_search(), 200
 
 
+    @token_required
     def put(self):
         print(f'\n### PUT(search) request:\n{request}')
         if ('type' in request.args):

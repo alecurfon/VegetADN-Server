@@ -1,9 +1,11 @@
 from flask_restful import Resource
 from flask import abort, request
+from app.auth import *
 
 class Biodatabase(Resource):
     methods = ['GET', 'POST', 'PUT', 'DELETE']
 
+    @token_required
     def get(self, id=-1, name=None):
         print(f'\n### GET(biodatabase) request:\n{request}')
 
@@ -42,6 +44,7 @@ class Biodatabase(Resource):
 
 
     # with Biopython
+    @admin_token_required
     def post(self):
         print(f'\n### POST(biodatabase) request:\n{request}')
 
@@ -60,6 +63,7 @@ class Biodatabase(Resource):
         return msg, 201
 
 
+    @admin_token_required
     def put(self, id=None, name=None):
         print(f'\n### PUT(biodatabase) request:\n{request}')
 
@@ -82,6 +86,7 @@ class Biodatabase(Resource):
 
 
     # with Biopython
+    @admin_token_required
     def delete(self, id=-1, name=None):
         print(f'\n### DELETE(biodatabase) request:\n{request}')
 

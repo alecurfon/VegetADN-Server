@@ -1,9 +1,11 @@
 from flask_restful import Resource
 from flask import abort, request
+from app.auth import *
 
 class Bioentry(Resource):
     methods = ['GET']
 
+    @token_required
     def get(self, id=-1, accession=None):
         print(f'\n### GET(bioentry) request:\n{request}')
 

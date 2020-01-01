@@ -1,6 +1,5 @@
 from app import db
 
-
 class Biodatabase(db.Model):
     __tablename__ = 'biodatabase'
     __table_args__ = {'autoload':True}
@@ -12,7 +11,6 @@ class Biodatabase(db.Model):
             'authority': self.authority,
             'description': self.description
         }
-
 
 class Bioentry(db.Model):
     __tablename__ = 'bioentry'
@@ -31,7 +29,6 @@ class Bioentry(db.Model):
             'version':self.version
         }
 
-
 class Biosequence(db.Model):
     __tablename__ = 'biosequence'
     __table_args__ = {'autoload':True}
@@ -45,7 +42,6 @@ class Biosequence(db.Model):
             'seq':self.seq
         }
 
-
 class TaxonName(db.Model):
     __tablename__ = 'taxon_name'
     __table_args__ = (
@@ -58,7 +54,6 @@ class TaxonName(db.Model):
             'name':self.name,
             'name_class':self.name_class
         }
-
 
 class Taxon(db.Model):
     __tablename__ = 'taxon'

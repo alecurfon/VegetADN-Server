@@ -1,10 +1,12 @@
 from flask_restful import Resource
 from flask import abort, request
+from app.auth import *
 
 class Taxon(Resource):
     methods = ['GET']
 
 
+    @token_required
     def get(self, id=-1, name=None):
         print(f'\n### GET(taxon) request:\n{request}')
 

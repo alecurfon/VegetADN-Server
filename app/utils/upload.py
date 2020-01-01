@@ -1,12 +1,10 @@
 import sys, os
 from psycopg2.errors import IntegrityError
 
-
 def run(conn, filepath, biodb):
 
     if not os.path.isfile(filepath):
         return 0, 0, 'unknown', f'{filepath} is not a file.'
-
     if os.path.getsize(filepath) == 0:
         return 0, 0, 'unknown', f'{filepath} is empty.'
 
@@ -18,9 +16,6 @@ def run(conn, filepath, biodb):
     n, total, format = upload_file(conn, filepath, db)
     return n, total, format, f'Number of sequencies saved: {n}/{total}'
 
-
-# ['abi', 'abi-trim', 'ace', 'cif-atom', 'cif-seqres', 'clustal', 'embl', 'fasta', 'fasta-2line', 'fastq', 'fastq-sanger', 'fastq-solexa', 'fastq-illumina', 'gb', 'gck', 'genbank', 'ig', 'imgt', 'nexus', 'nib', 'pdb-seqres', 'pdb-atom', 'phd', 'phylip', 'pir', 'seqxml', 'sff', 'sff-trim', 'snapgene', 'stockholm', 'swiss', 'tab', 'qual', 'uniprot-xml', 'xdna']
-# ['genbank', 'gb', 'fasta', 'embl', 'seqxml']
 def upload_file(conn, filepath, db):
     print(f'>> File: {filepath}')
 
@@ -58,6 +53,4 @@ def upload_file(conn, filepath, db):
 
         conn.commit()
         return n, total, format
-
-
     return 0, 0, 'unknown'
