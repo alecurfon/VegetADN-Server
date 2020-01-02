@@ -9,7 +9,7 @@ TMP_FOLDER = '/tmp'
 class FilesIO(Resource):
     methods = ['GET', 'POST']
 
-    @admin_token_required
+    @token_required
     def get(self):
         print(f'\n### GET(filesIO) request:\n{request}')
         self.__check_get_args()
@@ -45,7 +45,7 @@ class FilesIO(Resource):
             self.filename = request.args['filename']
 
 
-    @admin_token_required
+    @token_required
     def post(self, biodb):
         print(f'\n### POST(filesIO) request:\n{request}')
         if len(request.files) < 1:
