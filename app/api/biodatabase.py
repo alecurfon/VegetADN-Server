@@ -6,7 +6,7 @@ class Biodatabase(Resource):
     methods = ['GET', 'POST', 'PUT', 'DELETE']
 
     @token_required
-    def get(self, id=-1, name=None):
+    def get(self, name=None):
         print(f'\n### GET(biodatabase) request:\n{request}')
 
         count = ('count' in request.args) and (request.args['count']=='yes')
@@ -14,9 +14,9 @@ class Biodatabase(Resource):
         from app.models import Biodatabase
         query = Biodatabase.query
 
-        if id > -1 or name!=None:
+        if name!=None:
             try:
-                query = query.filter((Biodatabase.biodatabase_id == id) | (Biodatabase.name == name)).first()
+                query = query.filter(Biodatabase.name == name).first()
                 result = query.serialize()
             except Exception as e:
                 abort(404, description='Biodatabase not found.')
@@ -64,16 +64,14 @@ class Biodatabase(Resource):
 
 
     @admin_token_required
-    def put(self, id=None, name=None):
+    def put(self, name=None):
         print(f'\n### PUT(biodatabase) request:\n{request}')
 
         self.__data_check(request.json)
         from app import db
         from app.models import Biodatabase
         try:
-            if id!=None:
-                row = Biodatabase.query.filter(Biodatabase.biodatabase_id == id)
-            elif name!=None:
+            if name!=None:
                 row = Biodatabase.query.filter(Biodatabase.name == name)
             else:
                 abort(404, description='Biodatabase identifier is missing.')
@@ -87,17 +85,18 @@ class Biodatabase(Resource):
 
     # with Biopython
     @admin_token_required
-    def delete(self, id=-1, name=None):
+    def delete(self, name=None):
         print(f'\n### DELETE(biodatabase) request:\n{request}')
 
-        data, code = self.get(id, name)
+        data, code = self.get(name)
         if code == 404:
             abort(404, description='Biodatabase not found.')
         biodatabase = data['name']
         from app.utils.biopy_db import connect
         conn = connect()
         n_seqs = len(conn[biodatabase])
-        conn.remove_database(biodatabase)
+        # conn.remove_database(biodatabase)
+        del conn[biodatabase]
         conn.commit()
         conn.close()
         return {'message':f'Biodatabase "{biodatabase}" removed with its {n_seqs} sequences.'}, 201

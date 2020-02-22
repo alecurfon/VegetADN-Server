@@ -45,7 +45,7 @@ class FilesIO(Resource):
             self.filename = request.args['filename']
 
 
-    @token_required
+    @admin_token_required
     def post(self, biodb):
         print(f'\n### POST(filesIO) request:\n{request}')
         if len(request.files) < 1:
