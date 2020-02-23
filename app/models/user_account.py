@@ -66,3 +66,27 @@ class WhitelistToken(db.Model):
             return True
         else:
             return False
+
+if __name__ == '__main__':
+    db.create_all()
+    print('''>> Creating the two user accounts.
+        >> Insert the data for the administrator.''')
+    from getpass import getpass
+    username = input('Username: ')
+    while True:
+        password = getpass()
+        check_password = getpass('Repeat the same password: ')
+        if password == check_password:
+            break
+        print('The password does not match. Try again.')
+    db.session.add(User(username, password, True))
+    print('>> Insert the data for the basic user.')
+    username = input('Username: ')
+    while True:
+        password = getpass()
+        check_password = getpass('Repeat the same password: ')
+        if password == check_password:
+            break
+        print('The password does not match. Try again.')
+    db.session.add(User(username, password))
+    db.session.commit()
