@@ -30,6 +30,6 @@ then
   ./app/models/load_ncbi_taxonomy.pl --dbname vegetadn --driver Pg --dbuser vegetadn --download true
 fi
 sudo -u vegetadn psql vegetadn < ./app/models/search_scheme.sql
-python ./app/__init__.py
+python ./config.py
 
 printf '\n>> DONE\n'
