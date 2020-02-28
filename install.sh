@@ -12,6 +12,7 @@ printf '\n>> Setting up the PostgreSQL service ...\n'
 # sudo /etc/init.d/postgresql status
 sudo service postgresql start
 sudo service postgresql restart
+sudo useradd vegetadn
 sudo -u postgres createuser -g postgres -w -D -A vegetadn
 sudo -u postgres createdb -O vegetadn vegetadn
 sudo /etc/init.d/postgresql reload
