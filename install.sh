@@ -4,8 +4,8 @@ printf '\n>> Installing the needed tools ...\n'
 sudo apt -q -y install python3.7 python3-venv postgresql postgresql-contrib perl
 # >/dev/null 2>&1  &>/dev/null ? python-psycopg2
 printf '\n>> Setting up the Python virtual environment ...\n'
-python3.7 -q -m venv ./.vegetadn-virtualenv
-source ./.vegetadn-virtualenv/bin/activate
+python3.7 -q -m venv ./.venv
+source ./.venv/bin/activate
 pip install -q -r ./requirements.txt
 
 printf '\n>> Setting up the PostgreSQL service ...\n'
