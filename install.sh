@@ -10,9 +10,9 @@ pip install -q -r ./requirements.txt
 printf '\n>> Setting up the PostgreSQL service ...\n'
 sudo service postgresql start
 sudo service postgresql restart
-sudo useradd vegetadn
-sudo -u postgres createuser -g postgres -w -D -A "$(whoami)"
-sudo -u postgres createuser -g "$(whoami)" -w -D -A vegetadn
+sudo useradd vegetadn -p vegetadn
+sudo -u postgres createuser --superuser "$(whoami)"
+createuser -g "$(whoami)" -w -D -A vegetadn
 createdb vegetadn
 sudo /etc/init.d/postgresql reload
 
