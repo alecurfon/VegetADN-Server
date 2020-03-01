@@ -21,7 +21,7 @@ sudo service postgresql restart
 printf '\n>> Setting up the system user "vegetadn" ...\n'
 sudo useradd vegetadn
 yes "$password" | sudo passwd vegetadn
-yes "$password" | sudo -u postgres createuser -W --superuser vegetadn
+sudo -u postgres createuser --superuser vegetadn
 # sudo /etc/init.d/postgresql reload
 
 printf '\n>> Setting up the PostgreSQL scheme ...\n'
