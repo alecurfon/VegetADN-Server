@@ -1,4 +1,5 @@
 cd $( dirname $0 )
+sudo chmod 600 ./config.py
 
 printf '\n>> Installing the needed tools ...\n'
 sudo apt -qq -y install python3.7 python3-venv postgresql postgresql-contrib perl
