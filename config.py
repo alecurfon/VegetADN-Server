@@ -7,7 +7,7 @@ _basedir = os.path.abspath(os.path.dirname(__file__))
 DEBUG = False
 TESTING = False
 with open('./password', 'r') as file:
-    PASSWORD = file.readline()
+    PASSWORD = file.read().splitlines()[0]
 SQLALCHEMY_DATABASE_URI = f'postgresql://vegetadn:{PASSWORD}@localhost:5432/vegetadn'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 DATABASE_CONNECT_OPTIONS = {}
