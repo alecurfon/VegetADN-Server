@@ -1,16 +1,27 @@
 cd $( dirname $0 )
-sudo chmod 600 ./config.py
 
-printf '\n>> Installing the needed tools ...\n'
+printf '\n>> Insert the password for the system.\n'
+while true
+do
+  printf '\nPassword: ';read -s password;
+  printf '\nRepeat the same password: ';read -s match_pass;
+  [ "$password" == "$match_pass" ] && break
+  printf '\nThe password does not match. Try again.'
+done
+cat "$password">./password
+chmod 600 ./password
+
+printf '\n\n>> Installing the needed tools ...\n'
 sudo apt -qq -y install python3.7 python3-venv postgresql postgresql-contrib perl
 
 printf '\n>> Setting up the PostgreSQL service ...\n'
 sudo service postgresql start
 sudo service postgresql restart
+
 printf '\n>> Setting up the system user "vegetadn" ...\n'
 sudo useradd vegetadn
-sudo yes vegetadn | passwd vegetadn
-sudo -u postgres createuser --superuser vegetadn
+yes "$password" | sudo passwd vegetadn
+yes "$password" | sudo -u postgres createuser -W --superuser vegetadn
 # sudo /etc/init.d/postgresql reload
 
 printf '\n>> Setting up the PostgreSQL scheme ...\n'
