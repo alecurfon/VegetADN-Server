@@ -8,7 +8,7 @@ do
   [ "$password" == "$match_pass" ] && break
   printf '\nThe password does not match. Try again.'
 done
-cat "$password">./password
+echo "$password">./password
 chmod 600 ./password
 
 printf '\n\n>> Installing the needed tools ...\n'
