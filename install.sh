@@ -22,7 +22,7 @@ printf '\n>> Setting up the system user "vegetadn" ...\n'
 sudo useradd vegetadn
 yes "$password" | sudo passwd vegetadn
 sudo -u postgres createuser --superuser vegetadn
-echo ALTER USER vegetadn WITH PASSWORD "$password" ';' | sudo -u postgres psql
+echo "ALTER USER vegetadn WITH PASSWORD '$password' ;" | sudo -u postgres psql
 # sudo /etc/init.d/postgresql reload
 
 printf '\n>> Setting up the PostgreSQL scheme ...\n'
