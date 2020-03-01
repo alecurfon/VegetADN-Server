@@ -12,7 +12,7 @@ echo "$password">./password
 chmod 600 ./password
 
 printf '\n\n>> Installing the needed tools ...\n'
-sudo apt -qq -y install python3.7 python3-venv postgresql postgresql-contrib perl
+sudo apt -qq -y install python3.7 python3-venv postgresql-11 postgresql-contrib perl
 
 printf '\n>> Setting up the PostgreSQL service ...\n'
 sudo service postgresql start
@@ -22,6 +22,7 @@ printf '\n>> Setting up the system user "vegetadn" ...\n'
 sudo useradd vegetadn
 yes "$password" | sudo passwd vegetadn
 sudo -u postgres createuser --superuser vegetadn
+echo ALTER USER vegetadn WITH PASSWORD "$password" ';' | psql
 # sudo /etc/init.d/postgresql reload
 
 printf '\n>> Setting up the PostgreSQL scheme ...\n'
