@@ -18,8 +18,8 @@ if __name__ == '__main__':
     from app.models import User
 
     db.create_all()
-    print('''>> Creating the two user accounts.
-        >> Insert the data for the administrator.''')
+    print('>> Creating the two user accounts that will access to the aplication.',
+        '>> Insert the data for the administrator (full-access).')
     from getpass import getpass
     username = input('Username: ')
     while True:
@@ -29,7 +29,7 @@ if __name__ == '__main__':
             break
         print('The password does not match. Try again.')
     db.session.add(User(username, password, True))
-    print('>> Insert the data for the basic user.')
+    print('>> Insert the data for the basic user (read and download only).')
     username = input('Username: ')
     while True:
         password = getpass()
