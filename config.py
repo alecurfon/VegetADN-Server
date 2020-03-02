@@ -18,7 +18,7 @@ if __name__ == '__main__':
     from app.models import User
 
     db.create_all()
-    print('>> Creating the two user accounts that will access to the aplication.',
+    print('>> Creating the two user accounts that will access to the aplication.\n',
         '>> Insert the data for the administrator (full-access).')
     from getpass import getpass
     username = input('Username: ')
