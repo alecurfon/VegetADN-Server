@@ -4,8 +4,8 @@ cd $( dirname $0 )
 printf 'Enter the password for the database. This will be internal.\n'
 while true
 do
-  printf 'Password: ';read -s password;
-  printf 'Repeat the same password: ';read -s match_pass;
+  printf 'Password: ';read -s password;echo;
+  printf 'Repeat the same password: ';read -s match_pass;echo;
   [ "$password" == "$match_pass" ] && break
   printf '\nThe password does not match. Try again.\n';
 done
