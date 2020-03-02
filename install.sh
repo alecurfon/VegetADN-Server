@@ -1,15 +1,7 @@
 #!/bin/bash
 
 cd $( dirname $0 )
-
-printf '\n>> Installing the needed tools ...\n'
-sudo apt -qq -y install python3.7 python3-venv postgresql-11 postgresql-contrib perl
-
-printf '\n>> Setting up the PostgreSQL service ...\n'
-sudo service postgresql start
-sudo service postgresql restart
-
-printf '\n>> Creating the user "vegetadn" ...\nInsert the password for the database.\n'
+printf 'Enter the password for the database. This will be internal.\n'
 while true
 do
   printf 'Password: ';read -s password;
@@ -18,6 +10,15 @@ do
   printf '\nThe password does not match. Try again.\n';
 done
 echo "$password">./password;chmod 600 ./password;
+
+printf '\n>> Installing the needed tools ...\n'
+sudo apt -qq -y install python3.7 python3-venv postgresql-11 postgresql-contrib perl
+
+printf '\n>> Setting up the PostgreSQL service ...\n'
+sudo service postgresql start
+sudo service postgresql restart
+
+printf '\n>> Creating the user "vegetadn" ...\n'
 sudo useradd vegetadn
 yes "$password" | sudo passwd vegetadn
 sudo -u postgres createuser --superuser vegetadn
