@@ -1,12 +1,12 @@
 import os
-_basedir = os.path.abspath(os.path.dirname(__file__))
+basedir = os.path.abspath(os.path.dirname(__file__))
 
 # from Bio import Entrez
 # Entrez.email = 'vegetADN@vegetadn.es'
 
 DEBUG = False
 TESTING = False
-with open('./password', 'r') as file:
+with open(f'{basedir}/password', 'r') as file:
     PASSWORD = file.read().splitlines()[0]
 SQLALCHEMY_DATABASE_URI = f'postgresql://vegetadn:{PASSWORD}@localhost:5432/vegetadn'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
