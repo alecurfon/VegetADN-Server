@@ -1,14 +1,17 @@
 import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
-# from Bio import Entrez
-# Entrez.email = 'vegetADN@vegetadn.es'
+DBTYPE = 'postgresql'
+DBDRIVER = 'psycopg2'
+DBHOST = 'localhost:5432'
+DBNAME = 'vegetadn'
+DBUSER = 'vegetadn'
+with open(f'{basedir}/password', 'r') as file:
+    DBPASSWD = file.read().splitlines()[0]
 
 DEBUG = False
 TESTING = False
-with open(f'{basedir}/password', 'r') as file:
-    PASSWORD = file.read().splitlines()[0]
-SQLALCHEMY_DATABASE_URI = f'postgresql://vegetadn:{PASSWORD}@localhost:5432/vegetadn'
+SQLALCHEMY_DATABASE_URI = f'{DBTYPE}://{DBUSER}:{DBPASSWD}@{DBHOST}/{DBNAME}'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 DATABASE_CONNECT_OPTIONS = {}
 SECRET_KEY = '\xfc\xfe\xad\xe1u\xd3=\xfd?\x00\xb6\xfeQ\x176\x17C\xd6\xfa\xf2\xfbK\x1f\xa0\xd6lx~\xcev.\xb4'

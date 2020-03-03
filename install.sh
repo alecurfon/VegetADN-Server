@@ -34,10 +34,10 @@ printf '\n>> Would you like to load the taxonomy of the NCBI? This could take a 
 read response
 if [ "$response" = "y" ]
 then
-  yes '' | perl -MCPAN -e 'install DBI'
-  yes '' | perl -MCPAN -e 'install DBD::Pg'
+  # yes '' | perl -MCPAN -e 'install DBI'
+  # yes '' | perl -MCPAN -e 'install DBD::Pg'
   sudo chmod +x ./app/models/load_ncbi_taxonomy.pl
-  yes '' | ./app/models/load_ncbi_taxonomy.pl --dbname vegetadn --driver Pg --dbuser vegetadn --download true
+  yes '' | ./app/models/load_ncbi_taxonomy.pl --dbname vegetadn --driver Pg --dbuser vegetadn --dbpass '$password'--download true
 fi
 
 printf '\n>> Setting up the Python virtual environment ...\n'
