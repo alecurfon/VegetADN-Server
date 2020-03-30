@@ -30,16 +30,16 @@ sudo -u vegetadn createdb vegetadn
 sudo -u vegetadn psql vegetadn < ./app/models/biosql_scheme.sql
 sudo -u vegetadn psql vegetadn < ./app/models/search_scheme.sql
 
-printf '\n>> Would you like to load the taxonomy of the NCBI? This could take a while. [y/N]: '
-read response
-if [ "$response" = "y" ]
-then
-  # sudo apt install libpg-perl libdbd-pg-perl
-  yes '' | perl -MCPAN -e 'install DBI'
-  yes '' | perl -MCPAN -e 'install DBD::Pg'
-  sudo chmod +x ./app/models/load_ncbi_taxonomy.pl
-  yes '' | sudo -u vegetadn ./app/models/load_ncbi_taxonomy.pl --dbname vegetadn --driver Pg --dbuser vegetadn --download true
-fi
+# printf '\n>> Would you like to load the taxonomy of the NCBI? This could take a while. [y/N]: '
+# read response
+# if [ "$response" = "y" ]
+# then
+#   # sudo apt install libpg-perl libdbd-pg-perl
+#   yes '' | perl -MCPAN -e 'install DBI'
+#   yes '' | perl -MCPAN -e 'install DBD::Pg'
+#   sudo chmod +x ./app/models/load_ncbi_taxonomy.pl
+#   yes '' | sudo -u vegetadn ./app/models/load_ncbi_taxonomy.pl --dbname vegetadn --driver Pg --dbuser vegetadn --download true
+# fi
 
 printf '\n>> Setting up the Python virtual environment ...\n'
 python3.7 -q -m venv ./.venv
