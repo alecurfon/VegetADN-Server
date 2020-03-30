@@ -78,5 +78,8 @@ class Bioentry(Resource):
             from app.utils import connect
             biodb_conn = connect()[result['biodatabase']['name']]
             sequence = biodb_conn.lookup(accession=result['accession'])
-            result['sequence'] = sequence.format('gb')
+            try:
+                result['sequence'] = sequence.format('gb')
+            except Exception as e:
+                result['sequence'] = sequence.format('fasta')
         return result
