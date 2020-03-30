@@ -15,4 +15,4 @@ the administrator and normal user account.
 
 # Execution
 
-Once installed, it is possible to run the client from its folder with `./execute.sh`.
+Once installed, it is possible to run the server from its folder with `./execute.sh`.
