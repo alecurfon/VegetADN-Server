@@ -1,6 +1,7 @@
 from flask_restful import Resource
-from flask import abort, request
-from src.auth import *
+from flask import request, abort as end_request
+
+from ..auth import *
 
 class Taxon(Resource):
     methods = ['GET']
@@ -10,7 +11,7 @@ class Taxon(Resource):
     def get(self, id=-1, name=None):
         print(f'\n### GET(taxon) request:\n{request}')
 
-        from src.models import TaxonName
+        from ..models import TaxonName
         result = []
         query = TaxonName.query
         if id > -1:
@@ -18,7 +19,7 @@ class Taxon(Resource):
                 query = query.filter(TaxonName.taxon_id == id) \
                     .order_by(TaxonName.name_class)
             except Exception as e:
-                abort(404, description='TaxonName not found.')
+                end_request(404, description='TaxonName not found.')
         elif name!=None:
             try:
                 result = [query.filter(TaxonName.name == name).first().serialize()]
@@ -26,7 +27,7 @@ class Taxon(Resource):
                     .filter(TaxonName.name != result[0]['name']) \
                     .order_by(TaxonName.name_class)
             except Exception as e:
-                abort(404, description='TaxonName not found.')
+                end_request(404, description='TaxonName not found.')
         else:
             query = query.order_by(TaxonName.name)
         for b in query.all():

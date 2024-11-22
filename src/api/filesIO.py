@@ -1,8 +1,9 @@
 import os
 from flask_restful import Resource
-from flask import abort, request, send_file
+from flask import request, abort as end_request, send_file
 from werkzeug.utils import secure_filename
-from src.auth import *
+
+from ..auth import *
 
 TMP_FOLDER = '/tmp'
 
@@ -15,7 +16,7 @@ class FilesIO(Resource):
         self.__check_get_args()
         self.filename = os.path.join(TMP_FOLDER, secure_filename(self.filename))
 
-        from src.utils.biopy_db import connect
+        from ..utils.biopy_db import connect
         conn = connect()
         from ..utils import download
         desc = download.run(conn, self.filename, self.format,
@@ -27,7 +28,7 @@ class FilesIO(Resource):
     def __check_get_args(self):
         print(request.args)
         if ('biodatabase' not in request.args):
-            abort(400, description=f'The biodatabase is not specified.')
+            end_request(400, description=f'The biodatabase is not specified.')
         self.biodatabase = request.args['biodatabase']
         if ('bioentry' not in request.args):
             self.bioentry = ''
@@ -38,7 +39,7 @@ class FilesIO(Resource):
         else:
             self.format = request.args['format']
         if self.format not in ('embl', 'fasta', 'gb', 'genbank'):
-            abort(400, description=f'The format {self.format} is not available.')
+            end_request(400, description=f'The format {self.format} is not available.')
         if ('filename' not in request.args) or (request.args['filename'] == ''):
             self.filename = f"{request.args['biodatabase']}_download.{request.args['format']}"
         else:
@@ -49,9 +50,9 @@ class FilesIO(Resource):
     def post(self, biodb):
         print(f'\n### POST(filesIO) request:\n{request}')
         if len(request.files) < 1:
-            abort(400, description='File list is missing.')
+            end_request(400, description='File list is missing.')
 
-        from src.utils.biopy_db import connect
+        from ..utils.biopy_db import connect
         conn = connect()
 
         msg = []

@@ -1,7 +1,7 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 import datetime, jwt
 
-from src import app, db
+from .. import app, db
 
 class User(db.Model):
     __tablename__ = "users"

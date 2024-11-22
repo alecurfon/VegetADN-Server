@@ -1,6 +1,7 @@
 from flask_restful import Resource
-from flask import abort, request
-from src.auth import *
+from flask import request, abort as end_request
+
+from ..auth import *
 
 class Biodatabase(Resource):
     methods = ['GET', 'POST', 'PUT', 'DELETE']
@@ -11,7 +12,7 @@ class Biodatabase(Resource):
 
         count = ('count' in request.args) and (request.args['count']=='yes')
 
-        from src.models import Biodatabase
+        from ..models import Biodatabase
         query = Biodatabase.query
 
         if name!=None:
@@ -19,14 +20,14 @@ class Biodatabase(Resource):
                 query = query.filter(Biodatabase.name == name).first()
                 result = query.serialize()
             except Exception as e:
-                abort(404, description='Biodatabase not found.')
+                end_request(404, description='Biodatabase not found.')
             if count:
                 n_seqs = self.getCount(query)
                 result['count']=n_seqs
         else:
             query = query.order_by(Biodatabase.name)
             if ('bioentry' in request.args):
-                from src.models import Bioentry
+                from ..models import Bioentry
                 query = query.join(Bioentry) \
                     .filter(Bioentry.accession == request.args['bioentry'])
             result = []
@@ -39,7 +40,7 @@ class Biodatabase(Resource):
 
 
     def getCount(self, biodb):
-        from src.models import Bioentry
+        from ..models import Bioentry
         return Bioentry.query.filter(Bioentry.biodatabase_id==biodb.biodatabase_id).count()
 
 
@@ -49,11 +50,11 @@ class Biodatabase(Resource):
         print(f'\n### POST(biodatabase) request:\n{request}')
 
         self.__data_check(request.json)
-        from src.utils.biopy_db import connect
+        from ..utils.biopy_db import connect
         conn = connect()
         try:
             db = conn[self.name]
-            abort(409, description=f'The database "{self.name}" already exists.')
+            end_request(409, description=f'The database "{self.name}" already exists.')
         except KeyError as e:
             db = conn.new_database(self.name, authority=self.authority, description=self.description)
             conn.commit()
@@ -68,15 +69,15 @@ class Biodatabase(Resource):
         print(f'\n### PUT(biodatabase) request:\n{request}')
 
         self.__data_check(request.json)
-        from src import db
-        from src.models import Biodatabase
+        from .. import db
+        from ..models import Biodatabase
         try:
             if name!=None:
                 row = Biodatabase.query.filter(Biodatabase.name == name)
             else:
-                abort(404, description='Biodatabase identifier is missing.')
+                end_request(404, description='Biodatabase identifier is missing.')
         except Exception as e:
-            abort(404, description='Biodatabase not found.')
+            end_request(404, description='Biodatabase not found.')
         row.update({'name':self.name, 'authority':self.authority, 'description':self.description})
         db.session.commit()
         db.session.close()
@@ -90,9 +91,9 @@ class Biodatabase(Resource):
 
         data, code = self.get(name)
         if code == 404:
-            abort(404, description='Biodatabase not found.')
+            end_request(404, description='Biodatabase not found.')
         biodatabase = data['name']
-        from src.utils.biopy_db import connect
+        from ..utils.biopy_db import connect
         conn = connect()
         n_seqs = len(conn[biodatabase])
         # conn.remove_database(biodatabase)
@@ -106,7 +107,7 @@ class Biodatabase(Resource):
         print(f'>>> CHECKING {data}')
 
         if 'name' not in data:
-            abort(400, description=f'Data is missing for {data}')
+            end_request(400, description=f'Data is missing for {data}')
         self.name = data['name']
         if data['name'] == None:
             self.name = ''

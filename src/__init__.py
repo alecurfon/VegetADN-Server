@@ -14,7 +14,7 @@ db.reflect()
 from sqlalchemy import MetaData
 db.make_declarative_base(db.Model, MetaData(bind=db.get_engine()))
 
-from src.auth.views import auth_blueprint
+from .auth.views import auth_blueprint
 app.register_blueprint(auth_blueprint)
 
 from flask_restful import Api

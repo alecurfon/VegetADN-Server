@@ -1,9 +1,8 @@
 from flask import Blueprint, request, make_response, jsonify
 from flask.views import MethodView
 
-from src import db
-from src.models import User, WhitelistToken
-from werkzeug.security import generate_password_hash, check_password_hash
+from .. import db
+from ..models import User, WhitelistToken
 
 auth_blueprint = Blueprint('auth', __name__)
 

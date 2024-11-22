@@ -1,6 +1,7 @@
 from flask_restful import Resource
-from flask import abort, request
-from src.auth import *
+from flask import request, abort as end_request
+
+from ..auth import *
 
 class Search(Resource):
     methods = ['GET', 'PUT']
@@ -29,7 +30,7 @@ class Search(Resource):
                 REFRESH MATERIALIZED VIEW bioentry_search;
                 REFRESH MATERIALIZED VIEW taxon_search;'''
             msg = 'The full-text search is ready.'
-        from src import db
+        from .. import db
         db.session.execute(query)
         db.session.commit()
         db.session.close()
@@ -39,11 +40,11 @@ class Search(Resource):
     def __check_args(self):
         if ('type' not in request.args) or ('search' not in request.args) \
             or ('page' not in request.args) or ('page_size' not in request.args):
-            abort(400, description=f'Params are missing.')
+            end_request(400, description=f'Params are missing.')
         if request.args['type'] not in ('biodatabase', 'bioentry', 'taxon'):
-            abort(409, description=f'Search of type {type} is not available.')
+            end_request(409, description=f'Search of type {type} is not available.')
         if not (request.args['page'].isdigit() and request.args['page_size'].isdigit()):
-            abort(409, description='The page information is incorrect.')
+            end_request(409, description='The page information is incorrect.')
 
 
     def __set_args(self):
@@ -68,11 +69,11 @@ class Search(Resource):
 
     def attach(self, bioentry):
         result=bioentry.serialize()
-        from src.models import Biodatabase
+        from ..models import Biodatabase
         result['biodatabase'] = Biodatabase.query \
             .filter(Biodatabase.biodatabase_id==bioentry.biodatabase_id) \
             .first().serialize()
-        from src.models import TaxonName
+        from ..models import TaxonName
         try:
             result['taxon'] = TaxonName.query \
                 .filter(TaxonName.taxon_id==bioentry.taxon_id) \
@@ -97,32 +98,31 @@ class Search(Resource):
 
     def __get_all(self):
         if self.type == 'biodatabase':
-            from src.models import Biodatabase as Bioelement
+            from ..models import Biodatabase as Bioelement
         if self.type == 'bioentry':
-            from src.models import Bioentry as Bioelement
+            from ..models import Bioentry as Bioelement
         if self.type == 'taxon':
-            from src.models import TaxonName
+            from ..models import TaxonName
             return TaxonName.query.filter(TaxonName.name_class == 'scientific name')
         return Bioelement.query
 
 
     def __search_biodatabase(self):
-        from src.models import Biodatabase, BiodatabaseSearch
+        from ..models import Biodatabase, BiodatabaseSearch
         return Biodatabase.query \
             .join(BiodatabaseSearch, Biodatabase.biodatabase_id == BiodatabaseSearch.biodatabase_id) \
             .filter(BiodatabaseSearch.document.match(self.search, postgresql_regconfig='english'))
 
 
     def __search_bioentry(self):
-        from src import db
-        from src.models import Bioentry, BioentrySearch
+        from ..models import Bioentry, BioentrySearch
         return Bioentry.query \
             .join(BioentrySearch, Bioentry.bioentry_id == BioentrySearch.bioentry_id) \
             .filter(BioentrySearch.document.match(self.search, postgresql_regconfig='english'))
 
 
     def __search_taxon(self):
-        from src.models import TaxonName, TaxonSearch
+        from ..models import TaxonName, TaxonSearch
         return TaxonName.query \
             .filter(TaxonName.name_class == 'scientific name') \
             .join(TaxonSearch, TaxonName.taxon_id == TaxonSearch.taxon_id) \
