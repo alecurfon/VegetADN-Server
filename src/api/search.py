@@ -1,6 +1,6 @@
 from flask_restful import Resource
 from flask import abort, request
-from app.auth import *
+from src.auth import *
 
 class Search(Resource):
     methods = ['GET', 'PUT']
@@ -29,7 +29,7 @@ class Search(Resource):
                 REFRESH MATERIALIZED VIEW bioentry_search;
                 REFRESH MATERIALIZED VIEW taxon_search;'''
             msg = 'The full-text search is ready.'
-        from app import db
+        from src import db
         db.session.execute(query)
         db.session.commit()
         db.session.close()
@@ -68,11 +68,11 @@ class Search(Resource):
 
     def attach(self, bioentry):
         result=bioentry.serialize()
-        from app.models import Biodatabase
+        from src.models import Biodatabase
         result['biodatabase'] = Biodatabase.query \
             .filter(Biodatabase.biodatabase_id==bioentry.biodatabase_id) \
             .first().serialize()
-        from app.models import TaxonName
+        from src.models import TaxonName
         try:
             result['taxon'] = TaxonName.query \
                 .filter(TaxonName.taxon_id==bioentry.taxon_id) \
@@ -97,32 +97,32 @@ class Search(Resource):
 
     def __get_all(self):
         if self.type == 'biodatabase':
-            from app.models import Biodatabase as Bioelement
+            from src.models import Biodatabase as Bioelement
         if self.type == 'bioentry':
-            from app.models import Bioentry as Bioelement
+            from src.models import Bioentry as Bioelement
         if self.type == 'taxon':
-            from app.models import TaxonName
+            from src.models import TaxonName
             return TaxonName.query.filter(TaxonName.name_class == 'scientific name')
         return Bioelement.query
 
 
     def __search_biodatabase(self):
-        from app.models import Biodatabase, BiodatabaseSearch
+        from src.models import Biodatabase, BiodatabaseSearch
         return Biodatabase.query \
             .join(BiodatabaseSearch, Biodatabase.biodatabase_id == BiodatabaseSearch.biodatabase_id) \
             .filter(BiodatabaseSearch.document.match(self.search, postgresql_regconfig='english'))
 
 
     def __search_bioentry(self):
-        from app import db
-        from app.models import Bioentry, BioentrySearch
+        from src import db
+        from src.models import Bioentry, BioentrySearch
         return Bioentry.query \
             .join(BioentrySearch, Bioentry.bioentry_id == BioentrySearch.bioentry_id) \
             .filter(BioentrySearch.document.match(self.search, postgresql_regconfig='english'))
 
 
     def __search_taxon(self):
-        from app.models import TaxonName, TaxonSearch
+        from src.models import TaxonName, TaxonSearch
         return TaxonName.query \
             .filter(TaxonName.name_class == 'scientific name') \
             .join(TaxonSearch, TaxonName.taxon_id == TaxonSearch.taxon_id) \

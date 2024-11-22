@@ -1,6 +1,6 @@
 from flask_restful import Resource
 from flask import abort, request
-from app.auth import *
+from src.auth import *
 
 class Biodatabase(Resource):
     methods = ['GET', 'POST', 'PUT', 'DELETE']
@@ -11,7 +11,7 @@ class Biodatabase(Resource):
 
         count = ('count' in request.args) and (request.args['count']=='yes')
 
-        from app.models import Biodatabase
+        from src.models import Biodatabase
         query = Biodatabase.query
 
         if name!=None:
@@ -26,7 +26,7 @@ class Biodatabase(Resource):
         else:
             query = query.order_by(Biodatabase.name)
             if ('bioentry' in request.args):
-                from app.models import Bioentry
+                from src.models import Bioentry
                 query = query.join(Bioentry) \
                     .filter(Bioentry.accession == request.args['bioentry'])
             result = []
@@ -39,7 +39,7 @@ class Biodatabase(Resource):
 
 
     def getCount(self, biodb):
-        from app.models import Bioentry
+        from src.models import Bioentry
         return Bioentry.query.filter(Bioentry.biodatabase_id==biodb.biodatabase_id).count()
 
 
@@ -49,7 +49,7 @@ class Biodatabase(Resource):
         print(f'\n### POST(biodatabase) request:\n{request}')
 
         self.__data_check(request.json)
-        from app.utils.biopy_db import connect
+        from src.utils.biopy_db import connect
         conn = connect()
         try:
             db = conn[self.name]
@@ -68,8 +68,8 @@ class Biodatabase(Resource):
         print(f'\n### PUT(biodatabase) request:\n{request}')
 
         self.__data_check(request.json)
-        from app import db
-        from app.models import Biodatabase
+        from src import db
+        from src.models import Biodatabase
         try:
             if name!=None:
                 row = Biodatabase.query.filter(Biodatabase.name == name)
@@ -92,7 +92,7 @@ class Biodatabase(Resource):
         if code == 404:
             abort(404, description='Biodatabase not found.')
         biodatabase = data['name']
-        from app.utils.biopy_db import connect
+        from src.utils.biopy_db import connect
         conn = connect()
         n_seqs = len(conn[biodatabase])
         # conn.remove_database(biodatabase)

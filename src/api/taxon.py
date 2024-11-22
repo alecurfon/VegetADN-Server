@@ -1,6 +1,6 @@
 from flask_restful import Resource
 from flask import abort, request
-from app.auth import *
+from src.auth import *
 
 class Taxon(Resource):
     methods = ['GET']
@@ -10,7 +10,7 @@ class Taxon(Resource):
     def get(self, id=-1, name=None):
         print(f'\n### GET(taxon) request:\n{request}')
 
-        from app.models import TaxonName
+        from src.models import TaxonName
         result = []
         query = TaxonName.query
         if id > -1:

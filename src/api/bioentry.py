@@ -1,6 +1,6 @@
 from flask_restful import Resource
 from flask import abort, request
-from app.auth import *
+from src.auth import *
 
 class Bioentry(Resource):
     methods = ['GET']
@@ -11,7 +11,7 @@ class Bioentry(Resource):
 
         self.__check_page()
 
-        from app.models import Bioentry
+        from src.models import Bioentry
         query = Bioentry.query
         if (id > -1) or (accession!=None):
             try:
@@ -47,7 +47,7 @@ class Bioentry(Resource):
 
 
     def __biodatabase_filter(self, query, biodb):
-        from app.models import Biodatabase
+        from src.models import Biodatabase
         return query.join(Biodatabase) \
             .filter(Biodatabase.name == biodb)
 
@@ -62,11 +62,11 @@ class Bioentry(Resource):
 
     def __attach(self, bioentry):
         result=bioentry.serialize()
-        from app.models import Biodatabase
+        from src.models import Biodatabase
         result['biodatabase'] = Biodatabase.query \
             .filter(Biodatabase.biodatabase_id==bioentry.biodatabase_id) \
             .first().serialize()
-        from app.models import TaxonName
+        from src.models import TaxonName
         try:
             result['taxon'] = TaxonName.query \
                 .filter(TaxonName.taxon_id==bioentry.taxon_id) \
@@ -75,7 +75,7 @@ class Bioentry(Resource):
         except Exception as e:
             result['taxon'] = None
         if ('sequence' in request.args) and (request.args['sequence']=='yes'):
-            from app.utils import connect
+            from src.utils import connect
             biodb_conn = connect()[result['biodatabase']['name']]
             sequence = biodb_conn.lookup(accession=result['accession'])
             try:

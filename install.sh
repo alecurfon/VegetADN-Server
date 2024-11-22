@@ -37,8 +37,8 @@ sudo -u vegetadn psql vegetadn < ./app/models/search_scheme.sql
 #   # sudo apt install libpg-perl libdbd-pg-perl
 #   yes '' | perl -MCPAN -e 'install DBI'
 #   yes '' | perl -MCPAN -e 'install DBD::Pg'
-#   sudo chmod +x ./app/models/load_ncbi_taxonomy.pl
-#   yes '' | sudo -u vegetadn ./app/models/load_ncbi_taxonomy.pl --dbname vegetadn --driver Pg --dbuser vegetadn --download true
+#   sudo chmod +x ./src/models/load_ncbi_taxonomy.pl
+#   yes '' | sudo -u vegetadn ./src/models/load_ncbi_taxonomy.pl --dbname vegetadn --driver Pg --dbuser vegetadn --download true
 # fi
 
 printf '\n>> Setting up the Python virtual environment ...\n'

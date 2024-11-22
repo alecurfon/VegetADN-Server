@@ -2,7 +2,7 @@ import os
 from flask_restful import Resource
 from flask import abort, request, send_file
 from werkzeug.utils import secure_filename
-from app.auth import *
+from src.auth import *
 
 TMP_FOLDER = '/tmp'
 
@@ -15,7 +15,7 @@ class FilesIO(Resource):
         self.__check_get_args()
         self.filename = os.path.join(TMP_FOLDER, secure_filename(self.filename))
 
-        from app.utils.biopy_db import connect
+        from src.utils.biopy_db import connect
         conn = connect()
         from ..utils import download
         desc = download.run(conn, self.filename, self.format,
@@ -51,7 +51,7 @@ class FilesIO(Resource):
         if len(request.files) < 1:
             abort(400, description='File list is missing.')
 
-        from app.utils.biopy_db import connect
+        from src.utils.biopy_db import connect
         conn = connect()
 
         msg = []

@@ -1,5 +1,5 @@
 from flask import request, abort
-from app.models import User, WhitelistToken
+from src.models import User, WhitelistToken
 from functools import wraps
 import os, sys
 
